@@ -1,62 +1,32 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import axios from "axios";
+import Movie from "./Movie";
 
-function Food({name, picture, rating}) {
-  return (
-    <div>
-      <h2>I like {name}</h2>
-      <h4>{rating}/5.0</h4>
-      <img src={picture} alt={name}/>
-    </div>
-  );
-}
-
-const foodLike = [
-  {
-    id: 1,
-    name: "Kimchi",
-    image: "https://ucloud.lgcns.com/VmCube/Media/template/TPL_UCLD/images/portal/header_logo.png",
-    rating: 5
-  },
-  {
-    id: 2,
-    name: "Samgyeopsal",
-    image: "https://ucloud.lgcns.com/VmCube/Media/template/TPL_UCLD/images/portal/header_logo.png",
-    rating: 4.8
-  },
-  {
-    id: 3,
-    name: "Bibimbap",
-    image: "https://ucloud.lgcns.com/VmCube/Media/template/TPL_UCLD/images/portal/header_logo.png",
-    rating: 4.6
-  },
-  {
-    id: 4,
-    name: "Doncasu",
-    image: "https://ucloud.lgcns.com/VmCube/Media/template/TPL_UCLD/images/portal/header_logo.png",
-    rating: 4.8
-  },
-  {
-    id: 5,
-    name: "Kimbap",
-    image: "https://ucloud.lgcns.com/VmCube/Media/template/TPL_UCLD/images/portal/header_logo.png",
-    rating: 4.3
+class App extends React.Component {
+  state = {
+    isLoading: true,
+    movies:[]
   }
-];
 
-Food.propTypes = {
-  name: PropTypes.string.isRequired,
-  picture: PropTypes.string.isRequired,
-  rating: PropTypes.number.isRequired
-};
+  getMovies = async () => {
+    const{data:{data:{movies}}} = await axios.get("https://yts-proxy.now.sh/list_movies.json?sort_by=rating");
+    this.setState({movies,isLoading:false});
+  };
 
-function App() {
-  return (
-    <div>
-      {foodLike.map(dish => (<Food key={dish.id} name={dish.name} picture={dish.image} rating={dish.rating} />))}
-    </div>
-    
-  );
+  componentDidMount() {
+    //setTimeout(() => {
+    //  this.setState({isLoading: false});
+    //}, 6000);
+    this.getMovies();
+  };
+
+  render() {
+    const { isLoading, movies } = this.state;
+    return <div>{isLoading ? "Loading..." : movies.map((movie) => {
+      //console.log(movie);
+      return <Movie key={movie.id} id={movie.id} year={movie.year} title={movie.title} summary={movie.summary} poster={movie.medium_cover_image} />
+    })}</div>;
+  }
 }
 
 export default App;
